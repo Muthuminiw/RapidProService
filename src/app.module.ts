@@ -6,18 +6,16 @@ import { Connection } from 'typeorm';
 import { CarsModule } from './cars/cars.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { BullModule } from '@nestjs/bull';
+import { SocketModule } from './socket/socket.module';
 
 
 
 @Module({
-  imports: [BullModule.forRoot({
-    redis: {
-      host: 'localhost',
-      port: 6379,
-    },
-  }),TypeOrmModule.forRoot(), 
-  GraphQLModule.forRoot({ autoSchemaFile: 'schema.gql', }),
-   CarsModule
+  imports: [
+    GraphQLModule.forRoot({
+      typePaths:['./**/*.graphql']
+    }),
+   CarsModule,SocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],

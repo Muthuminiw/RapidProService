@@ -36,8 +36,8 @@ export class Car {
     manufactured_date:Date;
     
     @Field()
-    @Column('text')
-    age_of_vehicle:string;
+    @Column('numeric')
+    age_of_vehicle:number;
 
 
 }

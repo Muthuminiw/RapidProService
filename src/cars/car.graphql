@@ -1,0 +1,39 @@
+type Car {
+    id:ID!
+    firstName:String!
+    lastName:String!
+    email:String!
+    carMake:String!
+    carModel:String! 
+    vin:String!
+    manufacturedDate:String!
+    ageOfVehicle:Float!
+
+}
+type PageInfo{
+  hasNextPage: Boolean!
+  endCursor: String!
+}
+type CarConnection { 
+  pageInfo: PageInfo!
+  
+  nodes: [Car!]!
+
+  totalCount: Int!
+}
+
+
+type Query{
+   
+    getCarByAge(ageLimit:Float!): [Car!]!
+    carById(id:ID!): Car!
+    getAllCars( first: Int!, after: String!): CarConnection!
+    getCars: [Car!]!
+    searchCarsByModel( carModel:String!, first: Int!, after: String!): CarConnection!
+}
+
+type Mutation {
+
+  updateCarById(id: ID!, firstName: String!, lastName: String!, email: String!): Car!
+  deleteCar(id: ID!): ID!
+}
