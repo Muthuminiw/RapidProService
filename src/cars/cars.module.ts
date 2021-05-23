@@ -3,11 +3,18 @@ import { CarsService } from './cars.service';
 import { CarsController } from './cars.controller';
 
 import { CarsResolver } from './cars.resolver';
-import { AppGateway } from 'src/app.gateway';
+import { BullModule } from '@nestjs/bull';
+// import { AppGateway } from 'src/app.gateway';
 
 @Module({
-  
+  imports: [
+    BullModule.registerQueue({
+      name: 'cardata',
+    }),
+  ],
   controllers: [CarsController],
-  providers: [CarsService,CarsResolver,AppGateway]
+  providers: [CarsService,CarsResolver,
+    // AppGateway
+  ]
 })
 export class CarsModule {}

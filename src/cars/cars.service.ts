@@ -5,72 +5,32 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Car } from './entities/car.entity';
 import { getConnection, getRepository, Repository } from 'typeorm';
 import { PaginationDto } from './dto/pagination.dto';
-
 import { PaginatedCarsResultDto } from './dto/paginatedCarsResult.dto';
 import { AxiosResponse } from 'axios'
 import { Observable } from 'rxjs'
-import { AppGateway } from 'src/app.gateway';
 
 const { request, gql } = require('graphql-request')
 const fetch = require("node-fetch");
 const endpoint = 'http://localhost:5000/graphql';
 
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+
 @Injectable()
 export class CarsService {
+
   constructor(
-   
-    private appGateway: AppGateway
-  ) { }
+    @InjectQueue('cardata') private readonly csvQueue: Queue
+  ) {}
+  
 
-
-
-  // async searchWithWildChars(searchKey: string) {
-  //   if ("*" == searchKey.charAt(searchKey.length - 1)) {
-  //     searchKey = searchKey.slice(0, searchKey.length - 1);
-  //     var cars = await getRepository(Car)
-  //       .createQueryBuilder("car")
-  //       .where("car.car_model like :searchTag", { searchTag: `${searchKey}%` })
-  //       .orderBy('manufactured_date', "ASC")
-  //       .getMany();
-
-  //     return cars;
-  //   } else {
-
-  //     var cars = await getRepository(Car)
-  //       .createQueryBuilder("car")
-  //       .where("car.car_model = :searchTag", { searchTag: `${searchKey}` })
-  //       .orderBy('manufactured_date', "ASC")
-  //       .getMany();
-
-  //     return cars;
-  //   }
-
-
-  // }
   async exportCarDataToCsv(ageLimit: string) {
+    await this.csvQueue.add('exportByAge', {
+      ageLimit:  ageLimit,
+    });
+   
+    return { message: "Submitted to Export" };
 
-    const query = gql`query ($ageParam:BigFloat!){allCars(filter: {
-      ageOfVehicle: {  greaterThan :$ageParam}
-  }){nodes{
-        
-        id
-        firstName
-        lastName
-        email
-        carMake
-        carModel
-        ageOfVehicle}}}`;
-    console.log(endpoint);
-    console.log(query);
-    const variables = {
-      ageParam: ageLimit,
-    }
-    let output = await request(endpoint, query,variables)
-    const cars = output.allCars.nodes;
-    
-    this.appGateway.server.emit('exportToCsv', 'AAAAAAAAAAA');
-
-    return cars;
 
   }
 
@@ -91,16 +51,16 @@ export class CarsService {
     const variables = {
       id: idParam,
     }
-    let output = await request(endpoint, query,variables)
+    let output = await request(endpoint, query, variables)
     const car = output.carById;
-    
-    this.appGateway.server.emit('exportToCsv', 'AAAAAAAAAAA');
+
+    // this.appGateway.server.emit('exportToCsv', 'AAAAAAAAAAA');
 
     return car;
 
   }
 
-  
+
 
 
   async deleteCar(idParam: string) {
@@ -136,7 +96,7 @@ export class CarsService {
     const variables = {
       input: {
         id: idParam,
-        carPatch:updateCarDto
+        carPatch: updateCarDto
       }
     }
     let output = await request(endpoint, query, variables)
@@ -167,9 +127,10 @@ export class CarsService {
   //   return this.carRepository.findOne({ where: { id } });
   // }
 
-  async getAllCars(pageLimit:number, afterCsr:String) {
-    if(""==afterCsr){
-      afterCsr=null;
+  async getAllCars(pageLimit: number, afterCsr: String) {
+    console.log("This is After Cursor " + afterCsr);
+    if ("" == afterCsr) {
+      afterCsr = null;
     }
     const query = gql`query ($first:Int,$after:Cursor){allCars(first: $first, after:$after){
       nodes{
@@ -189,25 +150,92 @@ export class CarsService {
       
       totalCount}
     }`;
-    
+
     const variables = {
-        first: pageLimit,
-        after:afterCsr
-      
+      first: pageLimit,
+      after: afterCsr
+
     }
 
-    let output = await request(endpoint, query,variables)
+    let output = await request(endpoint, query, variables)
     const cars = output.allCars;
-    console.log("jjjjjjjjjjj "+cars);
     return cars;
 
+  };
+  
+  async getAllCarsFilteredAsc(first: number, offset: number, orderBy: String,carModel:String) {
+   console.log("Filtered cammeeee ");
+    const query = gql`query ($first: Int, $offset: Int, $carModel: String, $orderBy: [CarsOrderBy!]) {
+      allCars(
+        first: $first
+        offset: $offset
+        orderBy: $orderBy
+        filter: {carModel: {startsWith: $carModel}}
+      ) {
+        nodes {
+          id
+          firstName
+          lastName
+          email
+          carMake
+          carModel
+          vin
+          manufacturedDate
+          ageOfVehicle
+        }
+        totalCount
+      }
+    }`;
+
+    const variables = {
+      "first": first,
+      "offset": offset,
+      "orderBy": orderBy,
+      "carModel":carModel
+
+    }
+
+    let output = await request(endpoint, query, variables)
+    const cars = output.allCars;
+    console.log(cars);
+    return cars;
 
   };
 
+  async getAllCarsAsc(first: number, offset: number, orderBy: String) {
+  
+    const query = gql`query ($first:Int,$offset:Int,$orderBy:[CarsOrderBy!]){allCars(first:$first,offset:$offset,orderBy:$orderBy){
+      nodes{
+        id
+        firstName
+        lastName
+        email
+        carMake
+        carModel 
+        vin
+        manufacturedDate
+        ageOfVehicle
+      }
+      totalCount
+     
+    }
+}`;
 
+    const variables = {
+      "first": first,
+      "offset": offset,
+      "orderBy": orderBy
+
+    }
+
+    let output = await request(endpoint, query, variables)
+    const cars = output.allCars;
+    return cars;
+
+  };
 
   async getCars() {
-  
+
     const query = gql`query {allCars{
       nodes{
         id
@@ -223,39 +251,17 @@ export class CarsService {
       
      
     }`;
-    
+
+
+
+    let output = await request(endpoint, query)
+    const cars = output.allCars.nodes;
+    console.log("jjjjjjjjjjj " + cars);
+    return cars;
+
+
+  };
+
   
-
-    let output = await request(endpoint, query)
-    const cars = output.allCars.nodes;
-    console.log("jjjjjjjjjjj "+cars);
-    return cars;
-
-
-  };
-
-  async searchCarsByModel() {
-    const query = gql`query ($ageParam:BigFloat!,$pageLimit:Int,$after:Cursor){allCars(first: $pageLimit, after:$after){
-      nodes{
-        firstName
-        carMake
-      carModel
-      ageOfVehicle}
-      
-      pageInfo{hasNextPage
-      startCursor
-      endCursor}
-      
-      totalCount}
-    }`;
-    console.log(endpoint);
-    console.log(query);
-
-    let output = await request(endpoint, query)
-    const cars = output.allCars.nodes;
-    return cars;
-
-
-  };
 
 }

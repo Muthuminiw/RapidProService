@@ -1,0 +1,14 @@
+﻿export-by-age2
+
+id,firstName,lastName,email,carMake,carModel,ageOfVehicle
+"002ea6f9-7262-453a-808c-b090e466e7ca","Hoyt","Hadlee","Sapol","Saturn","VUE","31"
+"28b544a5-5cfa-4091-8a2d-f575c427e4c5","Hasty","Southard","Orivesi","Dodge","Ram Van B350","33"
+"511752c8-a2df-4410-9f10-599e88eed3bb","Fae","Zuenelli","Jacksonville","Chrysler","Sebring","32"
+"53717a90-d98d-4a93-9a39-bc3167960350","Hyman","Tiller","Taozixi","Porsche","944","33"
+"6f7298b2-833a-46b6-a754-a63b0414da57","Ruddy","Fickling","Lizhai","Ford","E350","33"
+"71038ed5-456a-46da-82df-8c3c9a8227ea","Inger","Pond","Várzea da Serra","Mitsubishi","Mirage","32"
+"852c0ba1-1c0d-49b1-aee7-c3caa19a549a","Ramsay","Larmett","Pericik","Ford","Explorer","32"
+"8a511169-77b3-4dd9-89c0-1472b9d823fa","Florindaq","Castagnone","Butere","Volvo","240","33"
+"8cce5773-e82c-4fbb-b16f-6983896288b8","Tilda","Allinson","Kyzyl-Burun","BMW","X6 M","33"
+"d7f6a15f-39d6-4849-ac9a-b96f842d2424","Renata","Feldharker","Xiamayu","Lotus","Elan","32"
+"e38b7736-38d7-4b10-b507-f27c160ef9d9","Yoga","Yglesias","Manado","Volkswagen","Passat","36"

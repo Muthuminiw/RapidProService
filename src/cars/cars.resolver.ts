@@ -9,32 +9,38 @@ import { Car } from "./entities/car.entity";
 export class CarsResolver {
   constructor(private readonly carsService: CarsService) {}
 
-
- 
-
   @Query()
     async carById(@Args('id') id: string){
       console.log("This is ht")
         return  await   this.carsService.carById(id);
     };
 
-      @Query()
+    @Query()
     async getAllCars(@Args('first') first: number,
     @Args('after') after: string){
       return  await   this.carsService.getAllCars(first, after);
     }
 
+    @Query()
+    async getAllCarsAsc(@Args('first') first: number,
+    @Args('offset') offset: number,@Args('orderBy') orderBy: string){
+
+      return  await   this.carsService.getAllCarsAsc(first, offset,orderBy);
+    }
+    @Query()
+    async getAllCarsFilteredAsc(@Args('first') first: number,
+    @Args('offset') offset: number,@Args('orderBy') orderBy: string,@Args('carModel') carModel:string){
+  
+   console.log("Filtered cammee111111111ee ");
+      return  await   this.carsService.getAllCarsFilteredAsc(first, offset,orderBy,carModel);
+    }
     
     @Query()
     async getCars(){
       return  await this.carsService.getCars();
     }
 
-    @Query()
-    async searchCarsByModel(@Args('carModel') carModel: string,@Args('first') first: number,
-    @Args('after') after: string){
-      return  await   this.carsService.searchCarsByModel();
-    }
+    
 
     // @Query()
     // async allCars(@Args('first') first: number,
