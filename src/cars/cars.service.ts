@@ -1,14 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCarDto } from './dto/create-car.dto';
+import { Injectable, Logger } from '@nestjs/common';
 import { UpdateCarDto } from './dto/update-car.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Car } from './entities/car.entity';
-import { getConnection, getRepository, Repository } from 'typeorm';
-import { PaginationDto } from './dto/pagination.dto';
-import { PaginatedCarsResultDto } from './dto/paginatedCarsResult.dto';
-import { AxiosResponse } from 'axios'
-import { Observable } from 'rxjs'
-
 const { request, gql } = require('graphql-request')
 const fetch = require("node-fetch");
 const endpoint = 'http://localhost:5000/graphql';
@@ -20,16 +11,16 @@ import { Queue } from 'bull';
 export class CarsService {
 
   constructor(
-    @InjectQueue('cardata') private readonly csvQueue: Queue
+    @InjectQueue('cardata') private readonly carDataQueue: Queue
   ) {}
-  
+  private readonly logger = new Logger(CarsService.name);
 
   async exportCarDataToCsv(ageLimit: string) {
-    await this.csvQueue.add('exportByAge', {
+    console.log("sarted 22222222222222222");
+    await this.carDataQueue.add('exportByAge', {
       ageLimit:  ageLimit,
     });
-   
-    return { message: "Submitted to Export" };
+    return { message: "Submitted Car data to Export" };
 
 
   }
@@ -54,7 +45,6 @@ export class CarsService {
     let output = await request(endpoint, query, variables)
     const car = output.carById;
 
-    // this.appGateway.server.emit('exportToCsv', 'AAAAAAAAAAA');
 
     return car;
 
@@ -103,29 +93,6 @@ export class CarsService {
     const cars = output.updateCarById.car;
     return cars;
   }
-
-  // async findAllInAscPaginated(paginationDto: PaginationDto): Promise<PaginatedCarsResultDto> {
-  //   const skippedItems = (paginationDto.page - 1) * paginationDto.limit;
-
-  //   const totalCount = await this.carRepository.count()
-  //   const cars = await this.carRepository.createQueryBuilder()
-  //     .orderBy('manufactured_date', "ASC")
-  //     .offset(skippedItems)
-  //     .limit(paginationDto.limit)
-  //     .getMany()
-
-  //   return {
-  //     totalCount,
-  //     page: paginationDto.page,
-  //     limit: paginationDto.limit,
-  //     data: cars,
-  //   }
-  // }
-
-
-  // findOne(id: string) {
-  //   return this.carRepository.findOne({ where: { id } });
-  // }
 
   async getAllCars(pageLimit: number, afterCsr: String) {
     console.log("This is After Cursor " + afterCsr);

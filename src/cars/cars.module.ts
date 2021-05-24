@@ -4,7 +4,7 @@ import { CarsController } from './cars.controller';
 
 import { CarsResolver } from './cars.resolver';
 import { BullModule } from '@nestjs/bull';
-// import { AppGateway } from 'src/app.gateway';
+import { CarDataProcessor } from './car.processor';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { BullModule } from '@nestjs/bull';
     }),
   ],
   controllers: [CarsController],
-  providers: [CarsService,CarsResolver,
+  providers: [CarsService,CarsResolver,CarDataProcessor
     // AppGateway
   ]
 })

@@ -2,9 +2,7 @@ import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 const { request, gql } = require('graphql-request')
 import { Job } from 'bull';
-import { Car } from 'src/cars/entities/car.entity';
-import { getConnection } from "typeorm";
-const csv = require('csvtojson');
+
 const endpoint = 'http://localhost:5000/graphql';
 import { ExportToCsv } from 'export-to-csv';
 const socketClusterClient = require('socketcluster-client');
@@ -23,7 +21,7 @@ export class CarDataProcessor {
   socket: any;
   @Process('exportByAge')
   async handleCarDataExportByAge(job: Job) {
-    console.log(job.data.ageLimit);
+  console.log("333333333333333333333");
     let ageLimit = job.data.ageLimit;
     const query = gql`query ($ageParam:BigFloat!){allCars(filter: {
       ageOfVehicle: {  greaterThan :$ageParam}
@@ -49,7 +47,7 @@ export class CarDataProcessor {
       decimalSeparator: '.',
       showLabels: true,
       showTitle: true,
-      title: 'export-by-agelimit - ' + ageLimit,
+      title: 'export-by-agelimit : ' + ageLimit,
       useTextFile: false,
       useBom: true,
       useKeysAsHeaders: true,
