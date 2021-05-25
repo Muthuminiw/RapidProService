@@ -42,7 +42,6 @@ export class CarsResolver {
 
     @Query()
     async getCarByAge(@Args('ageLimit') ageLimit: string) {
-      console.log("Came here...................00011");
     return await this.carsService.exportCarDataToCsv(ageLimit);
     }
 
@@ -52,8 +51,9 @@ export class CarsResolver {
     async updateCarById(@Args('id') id: string,
                         @Args('firstName') firstName: string, 
                         @Args('lastName') lastName : string,
-                        @Args('email') email : string) {
-        const updateCarDto: UpdateCarDto = {firstName, lastName,email}
+                        @Args('email') email : string,
+                        @Args('carModel') carModel : string) {
+        const updateCarDto: UpdateCarDto = {firstName, lastName,email,carModel}
         return await this.carsService.update(id, updateCarDto);
     }
 

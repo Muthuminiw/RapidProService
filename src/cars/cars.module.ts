@@ -14,7 +14,7 @@ import { CarDataProcessor } from './car.processor';
   ],
   controllers: [CarsController],
   providers: [CarsService,CarsResolver,CarDataProcessor
-    // AppGateway
+
   ]
 })
 export class CarsModule {}

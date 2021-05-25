@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { UpdateCarDto } from './dto/update-car.dto';
 const { request, gql } = require('graphql-request')
-const fetch = require("node-fetch");
+var PropertiesReader = require('properties-reader');
+var properties = PropertiesReader('./app.properties');
 const endpoint = 'http://localhost:5000/graphql';
 
 import { InjectQueue } from '@nestjs/bull';
@@ -9,14 +10,14 @@ import { Queue } from 'bull';
 
 @Injectable()
 export class CarsService {
-
+  // qury_getAllCarsFilteredAsc
   constructor(
     @InjectQueue('cardata') private readonly carDataQueue: Queue
   ) {}
   private readonly logger = new Logger(CarsService.name);
 
   async exportCarDataToCsv(ageLimit: string) {
-    console.log("sarted 22222222222222222");
+  
     await this.carDataQueue.add('exportByAge', {
       ageLimit:  ageLimit,
     });
@@ -37,8 +38,7 @@ export class CarsService {
       manufacturedDate
       ageOfVehicle
     }}`;
-    console.log(endpoint);
-    console.log(query);
+   
     const variables = {
       id: idParam,
     }
@@ -63,19 +63,18 @@ export class CarsService {
       id: idParam,
     }
     let output = await request(endpoint, query, variables)
-    console.log(output);
+  
     return output.deleteCarById.deletedCarId;
   }
 
   async update(idParam: string, updateCarDto: UpdateCarDto) {
-    // this.carRepository.update({ id }, updateCarDto);
-    // return this.carRepository.findOne({ id });
     const query = gql`mutation($input:UpdateCarByIdInput!){
       updateCarById(input:$input){
         car{
           id
           email
           firstName
+          carModel
           lastName
           ageOfVehicle
           vin
@@ -90,12 +89,11 @@ export class CarsService {
       }
     }
     let output = await request(endpoint, query, variables)
-    const cars = output.updateCarById.car;
-    return cars;
+    const carItem = output.updateCarById.car;
+    return carItem;
   }
 
   async getAllCars(pageLimit: number, afterCsr: String) {
-    console.log("This is After Cursor " + afterCsr);
     if ("" == afterCsr) {
       afterCsr = null;
     }
@@ -131,7 +129,8 @@ export class CarsService {
   };
   
   async getAllCarsFilteredAsc(first: number, offset: number, orderBy: String,carModel:String) {
-   console.log("Filtered cammeeee ");
+
+ console.log("This is consoles************** "+properties.get('qury_getAllCarsFilteredAsc'))
     const query = gql`query ($first: Int, $offset: Int, $carModel: String, $orderBy: [CarsOrderBy!]) {
       allCars(
         first: $first
@@ -164,7 +163,7 @@ export class CarsService {
 
     let output = await request(endpoint, query, variables)
     const cars = output.allCars;
-    console.log(cars);
+ 
     return cars;
 
   };
@@ -223,7 +222,6 @@ export class CarsService {
 
     let output = await request(endpoint, query)
     const cars = output.allCars.nodes;
-    console.log("jjjjjjjjjjj " + cars);
     return cars;
 
 

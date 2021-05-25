@@ -21,7 +21,6 @@ export class CarDataProcessor {
   socket: any;
   @Process('exportByAge')
   async handleCarDataExportByAge(job: Job) {
-  console.log("333333333333333333333");
     let ageLimit = job.data.ageLimit;
     const query = gql`query ($ageParam:BigFloat!){allCars(filter: {
       ageOfVehicle: {  greaterThan :$ageParam}
@@ -56,7 +55,7 @@ export class CarDataProcessor {
     const csvData = csvExporter.generateCsv(exportedCarData, true);
     fs.writeFile("export-by-age.csv", csvData, function (error) {
       if (error) throw error;
-      console.log("export-by-age.csv successfully!");
+  
     });
 
     let result = await this.socket.invoke('csvExportProc', { username: 'bob' });
